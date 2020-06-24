@@ -1,6 +1,6 @@
 ## 背景
 
-公司内部监控服务升级时，prometheus容器启动失败，容器日志：
+监控服务升级时，prometheus容器启动失败，容器日志：
 
 ```bash
 [root@node-17:/home/ubuntu]$ docker logs 3e62df7edb46
