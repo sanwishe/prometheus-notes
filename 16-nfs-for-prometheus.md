@@ -81,3 +81,20 @@ if !opts.NoLockfile {
 因此，对我们的场景来说，没有prometheus多实例的场景，"/home/prometheus/data/"不会有多进程访问冲突问题，可以使用该方法跳过。
 
 此外，还可以考虑的方案是远程数据存储和更换系统的存储卷类型，这里不再详细叙述。
+
+## 补充知识：文件锁
+
+Unix/Linux上有两种文件加锁机制：`fcntl()`和`flock()`。
+
+### `flock()`
+
+flock()源于BSD，所以通过flock()系统调用所施加的文件锁也会被称为BSD文件锁。其系统调用接口如下：
+
+```c
+#include <sys/file.h>
+
+int flock(int fd, int operation);
+```
+
+其中，fd是待加锁的文件的file describer，这里需要说明的是flock只能对整个文件加锁。operation是锁操作，可以是申请共享锁(LOCK_SH)或者互斥锁(LOCK_EX)，也可以是解锁(LOCK_UN)，还可以是尝试发起非阻塞的锁请求(LOCK_NB)。
+
