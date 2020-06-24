@@ -98,3 +98,32 @@ int flock(int fd, int operation);
 
 其中，fd是待加锁的文件的file describer，这里需要说明的是flock只能对整个文件加锁。operation是锁操作，可以是申请共享锁(LOCK_SH)或者互斥锁(LOCK_EX)，也可以是解锁(LOCK_UN)，还可以是尝试发起非阻塞的锁请求(LOCK_NB)。
 
+最后需要注意的是，`flock()`放置的是劝告式锁，而非强制性的锁。此外由于历史的原因，`flock()`不支持NFS。
+
+### `fcntl`
+
+`fcntl()`是posix标准和SUSv3的规定的文件加锁技术的实现，因此也成为POSIX文件锁。和BSD文件锁相比，POSIX文件锁可以把锁放在文件的任意位置。
+
+通常，使用`fcntl()`系统调用加锁的调用形式如下：
+
+```c
+struct flock flockstr;
+
+fcntl(fd, cmd, &flockstr);
+
+struct flock {
+  short l_type;    /* lock type: F_RDLCK,F_WRLCK,F_UNLCK */
+  short l_whence;  /* SEEK_SET,SEEK_CUR,SEEK_END */
+  
+  off_t l_start;   
+  off_t l_len;
+  off_t l_pid;
+}
+```
+
+其中，cmd参数可取以下值：
+
+- F_SETLK: 用来获取(l_type为F_RDLCK或者F_WRLCK)或者释放(l_type为F_UNLCK)
+- F_SETKW: 当区域内有其它进程持有非兼容锁，调用会阻塞
+- F_GETLK: 用来检测区域上是否有锁
+
